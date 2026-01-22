@@ -10,10 +10,11 @@ export default async function handler(req, res) {
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // modèle garanti disponible
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const result = await model.generateContent(
-      "Generate a hyper-realistic food photograph in base64. Dish: " + prompt
+      "Generate a hyper-realistic food photograph encoded as base64. Dish: " + prompt
     );
 
     const response = await result.response;
