@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 export default async function handler(req, res) {
   const prompt = req.query.prompt;
 
@@ -8,30 +6,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1/models/imagen-3.0:generateImage?key=" +
+        process.env.GEMINI_API_KEY,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: { text: prompt },
+          image: { size: "1024x1024" }
+        })
+      }
+    );
 
-    // Le modèle d'image AI Studio
-    const model = genAI.getGenerativeModel({
-      model: "imagen-3.0"
-    });
+    const data = await response.json();
 
-    // Appel image
-    const result = await model.generateImage({
-      prompt,
-      size: "1024x1024"
-    });
+    const base64 = data?.images?.[0]?.data;
 
-    // Récupération du base64
-    const image = result.images?.[0]?.base64;
-
-    if (!image) {
+    if (!base64) {
       return res.status(500).json({
         error: "No image returned",
-        raw: result
+        raw: data
       });
     }
 
-    res.status(200).json({ base64: image });
+    res.status(200).json({ base64 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
