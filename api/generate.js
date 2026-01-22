@@ -19,14 +19,16 @@ export default async function handler(req, res) {
       }
     );
 
-    const json = await response.json();
+    const raw = await response.text(); // <-- on lit TOUT
 
-    if (!json.images || !json.images[0] || !json.images[0].data) {
-      return res.status(500).json({ error: "No image returned", raw: json });
-    }
+    return res.status(200).json({
+      debug: "Google raw response",
+      raw: raw
+    });
 
-    res.status(200).json({ base64: json.images[0].data });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: err.message
+    });
   }
 }
